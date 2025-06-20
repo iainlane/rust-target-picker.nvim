@@ -1,8 +1,8 @@
 name: CI
 
 on:
-  push:
   pull_request:
+  merge_group:
 
 permissions:
   contents: read
@@ -45,6 +45,8 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     name: Lint
+    env:
+      PANVIMDOC_VERSION: v4.0.1
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -75,25 +77,34 @@ jobs:
         if: steps.cache-stylua.outputs.cache-hit != 'true'
         run: cargo install stylua --features default,lua52
 
-      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
-
-  docs:
-    runs-on: ubuntu-latest
-    name: Generate Documentation
-    steps:
-      - name: panvimdoc
-        uses: kdheepak/panvimdoc@662fb20304d20c539fb48a0bda628f5165507de7 # v4.0.1
+      - name: Setup Pandoc
+        uses: pandoc/actions/setup@54978b2465cef52a89f0e50a71d1397b1c25b469 # v1.1.0
         with:
-          vimdoc: rust-target-picker
-          version: "Neovim"
-          dedupsubheadings: false
-          docmappingprojectname: false
-          treesitter: true
+          version: 3.7.0.2
 
-      - name: Check if documentation is up to date
+      - name: Install panvimdoc
         run: |
+          curl -L -o panvimdoc.tar.gz "https://github.com/kdheepak/panvimdoc/archive/refs/tags/${PANVIMDOC_VERSION}.tar.gz"
+          tar -xzf panvimdoc.tar.gz
+          chmod +x "panvimdoc-${PANVIMDOC_VERSION#v}/panvimdoc.sh"
+
+      - name: Run panvimdoc manually
+        run: |
+          env -u GITHUB_ACTIONS "./panvimdoc-${PANVIMDOC_VERSION#v}/panvimdoc.sh" \
+            --project-name "rust-target-picker" \
+            --input-file "doc/rust-target-picker.md" \
+            --vim-version "Neovim" \
+            --description "Plugin for selecting and switching Rust compilation targets" \
+            --doc-mapping-project-name "false" \
+            --dedup-subheadings "false"
+
           if ! git diff --quiet; then
-            echo "Documentation is not up to date. Please run 'panvimdoc' and commit the changes."
-            git diff
+            echo "::error:: panvimdoc generated files have changed. Run the pre-commit hook and commit the results." >&2
             exit 1
           fi
+
+      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
+        with:
+          extra_args: --verbose --all-files
+        env:
+          SKIP: panvimdoc
