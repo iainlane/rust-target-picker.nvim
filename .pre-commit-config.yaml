@@ -1,0 +1,54 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: doc/rust-target-picker.txt
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+
+  - repo: https://github.com/pre-commit/sync-pre-commit-deps
+    rev: v0.0.3
+    hooks:
+      - id: sync-pre-commit-deps
+
+  - repo: https://github.com/kdheepak/panvimdoc
+    rev: v4.0.1
+    hooks:
+      - id: panvimdoc
+        files: doc/rust-target-picker.md
+        args:
+          - "--project-name"
+          - "rust-target-picker"
+          - "--input-file"
+          - "doc/rust-target-picker.md"
+          - "--vim-version"
+          - "Neovim"
+          - "--description"
+          - "Plugin for selecting and switching Rust compilation targets"
+          - "--doc-mapping-project-name"
+          - "false"
+          - "--dedup-subheadings"
+          - "false"
+
+  - repo: https://github.com/JohnnyMorganz/StyLua
+    rev: v2.1.0
+    hooks:
+      - id: stylua-system
+        files: \.lua$
+
+  - repo: https://github.com/Calinou/pre-commit-luacheck
+    rev: v1.0.0
+    hooks:
+      - id: luacheck
+
+  - repo: https://github.com/rhysd/actionlint/
+    rev: v1.7.7
+    hooks:
+      - id: actionlint-docker
+
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: v1.9.0
+    hooks:
+      - id: zizmor

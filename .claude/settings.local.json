@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(actionlint:*)",
+      "Bash(zizmor:*)",
+      "Bash(ls:*)",
+      "Bash(pre-commit run:*)",
+      "Bash(markdownlint:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)"
+    ],
+    "deny": []
+  }
+}
